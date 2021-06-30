@@ -3,6 +3,8 @@ package oura
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/nasu/lifelog-aggregator/util/logger"
 )
 
 const (
@@ -15,6 +17,7 @@ const (
 
 type Client struct {
 	AccessToken string
+	Logger      *logger.Logger
 }
 
 type UserInfo struct {
@@ -122,6 +125,7 @@ func (c *Client) SleepOneDay(date string) (res *SleepOneDay, err error) {
 	if err != nil {
 		return
 	}
+	c.Logger.Trace("oura SleepOneDay: %s", body)
 
 	var sleep Sleep
 	err = json.Unmarshal(body, &sleep)

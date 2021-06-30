@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/nasu/lifelog-aggregator/util/logger"
 )
 
 const (
@@ -18,6 +20,7 @@ type Client struct {
 	UserAgent   string
 	WorkSpaceID string
 	ApiToken    string
+	Logger      *logger.Logger
 }
 
 type details struct {
@@ -74,6 +77,7 @@ func (c *Client) getDetails(since, until string, page int) (data []DetailData, n
 	if err != nil {
 		return
 	}
+	c.Logger.Trace("toggl getDetail: %s", body)
 
 	var det details
 	err = json.Unmarshal(body, &det)

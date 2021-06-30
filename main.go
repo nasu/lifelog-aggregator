@@ -8,17 +8,26 @@ import (
 
 	"github.com/nasu/lifelog-aggregator/oura"
 	"github.com/nasu/lifelog-aggregator/toggl"
+	"github.com/nasu/lifelog-aggregator/util/logger"
 )
+
+var logg *logger.Logger
+
+func init() {
+	logLevel := os.Getenv("LOGLEVEL")
+	logg = logger.NewLoggerWithStringLogLevel(logLevel)
+}
 
 func main() {
 	now := time.Now()
+	total := make(map[string]map[string]int)
 	for i := 1; i <= 7; i++ {
 		date := now.Add(time.Hour * 24 * -1 * time.Duration(i)).Format("2006-01-02")
-		fmt.Print(date)
 		projectTimes := fromToggle(date)
 		projectTimes["睡眠"] += fromOura(date)
-		fmt.Println(projectTimes)
+		total[date] = projectTimes
 	}
+	fmt.Println(total)
 }
 
 func fromToggle(date string) map[string]int {
@@ -26,6 +35,7 @@ func fromToggle(date string) map[string]int {
 		UserAgent:   os.Getenv("TOGGL_USER_AGENT"),
 		WorkSpaceID: os.Getenv("TOGGL_WORKSPACE_ID"),
 		ApiToken:    os.Getenv("TOGGL_API_TOKEN"),
+		Logger:      logg,
 	}
 	details, err := c.GetDetails(date, date)
 	if err != nil {
@@ -43,6 +53,7 @@ func fromToggle(date string) map[string]int {
 func fromOura(date string) int {
 	c := &oura.Client{
 		AccessToken: os.Getenv("OURA_ACCESS_TOKEN"),
+		Logger:      logg,
 	}
 	sleep, err := c.SleepOneDay(date)
 	if err != nil {
