@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -25,6 +27,14 @@ import (
 
 var logg *logger.Logger
 
+type TemplateRenderer struct {
+	templates *template.Template
+}
+
+func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
 func init() {
 	logLevel := os.Getenv("LOGLEVEL")
 	logg = logger.NewLoggerWithStringLogLevel(logLevel)
@@ -33,6 +43,8 @@ func init() {
 func main() {
 	ctx := context.Background()
 	e := echo.New()
+
+	// middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(os.Getenv("SESSION_STORE_KEY")))))
@@ -40,10 +52,23 @@ func main() {
 	if err != nil {
 		log.Fatal("db cannot build")
 	}
-
 	e.Use(database.Middleware(db))
 	e.Use(user_session.Middleware(db))
 
+	// template
+	tmpl := template.New("template")
+	tmpl = tmpl.Funcs(template.FuncMap{
+		"toHMS": func(time int) string {
+			return fmt.Sprintf("%d:%02d:%02d", time/(60*60), (time/60)%60, time%60)
+		},
+	})
+	tmpl = template.Must(tmpl.ParseGlob("public/views/*.html"))
+	renderer := &TemplateRenderer{
+		templates: tmpl,
+	}
+	e.Renderer = renderer
+
+	// router
 	e.GET(constant.PATH_AUTH_GOOGLE, google.Index)
 	e.GET(constant.PATH_AUTH_GOOGLE_CALLBACK, google.Cb)
 
@@ -54,13 +79,16 @@ func main() {
 func diary(c echo.Context) error {
 	now := time.Now()
 	total := make(map[string]map[string]int)
-	for i := 1; i <= 3; i++ {
+	for i := 0; i <= 3; i++ {
 		date := now.Add(time.Hour * 24 * -1 * time.Duration(i)).Format("2006-01-02")
 		projectTimes := fromToggle(date)
 		projectTimes["睡眠"] += fromOura(date)
 		total[date] = projectTimes
 	}
-	return c.String(http.StatusOK, fmt.Sprintf("%#v", total))
+	return c.Render(http.StatusOK, "diary.html", map[string]interface{}{
+		"day":   now.Format("2006-01-02"),
+		"total": total,
+	})
 }
 
 func fromToggle(date string) map[string]int {
