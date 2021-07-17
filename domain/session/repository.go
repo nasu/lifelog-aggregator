@@ -23,7 +23,7 @@ type Session struct {
 
 func NewRepository(db *dynamodb.DB) *Repository {
 	return &Repository{
-		table:        "nasutest",
+		table:        "lifelog",
 		partitionKey: "session",
 		db:           db,
 	}
