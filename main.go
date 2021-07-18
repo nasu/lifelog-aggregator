@@ -38,6 +38,37 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func init() {
 	logLevel := os.Getenv("LOGLEVEL")
 	logg = logger.NewLoggerWithStringLogLevel(logLevel)
+
+	if os.Getenv("DYNAMODB_URL") == "" {
+		panic("DYNAMODB_URL is required")
+	}
+	if os.Getenv("DYNAMODB_REGION") == "" {
+		panic("DYNAMODB_REGION is required")
+	}
+	if os.Getenv("SESSION_STORE_KEY") == "" {
+		panic("SESSION_STORE_KEY is required")
+	}
+
+	if os.Getenv("GOOGLE_CLIENT_ID") == "" {
+		panic("GOOGLE_CLIENT_ID is required")
+	}
+	if os.Getenv("GOOGLE_CLIENT_SECRET") == "" {
+		panic("GOOGLE_CLIENT_SECRET is required")
+	}
+
+	if os.Getenv("TOGGL_USER_AGENT") == "" {
+		panic("TOGGLE_USER_AGENT is required")
+	}
+	if os.Getenv("TOGGL_WORKSPACE_ID") == "" {
+		panic("TOGGLE_WORKSPACE_ID is required")
+	}
+	if os.Getenv("TOGGL_API_TOKEN") == "" {
+		panic("TOGGLE_API_TOKEN is required")
+	}
+
+	if os.Getenv("OURA_ACCESS_TOKEN") == "" {
+		panic("OURA_ACCESS_TOKEN is required")
+	}
 }
 
 func main() {
