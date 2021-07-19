@@ -108,12 +108,19 @@ func main() {
 }
 
 func diary(c echo.Context) error {
+	db, err := database.Get(c)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
 	now := time.Now()
 	total := make(map[string]map[string]int)
 	for i := 0; i <= 3; i++ {
 		date := now.Add(time.Hour * 24 * -1 * time.Duration(i)).Format("2006-01-02")
 		projectTimes := fromToggle(date)
 		projectTimes["睡眠"] += fromOura(date)
+		projectTimes["移動"] += fromMove(db, date)
+		projectTimes["訪問"] += fromVisit(db, date)
 		total[date] = projectTimes
 	}
 	return c.Render(http.StatusOK, "diary.html", map[string]interface{}{
@@ -152,4 +159,12 @@ func fromOura(date string) int {
 		log.Fatal(err)
 	}
 	return sleep.Duration
+}
+
+func fromMove(db *dynamodb.DB, date string) int {
+
+}
+
+func fromVisit(db *dynamodb.DB, date string) int {
+
 }
