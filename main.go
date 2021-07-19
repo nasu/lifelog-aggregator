@@ -153,7 +153,8 @@ func fromToggle(date string) map[string]int {
 	}
 	details, err := c.GetDetails(date, date)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return map[string]int{}
 	}
 
 	projectTimes := make(map[string]int)
@@ -171,7 +172,8 @@ func fromOura(date string) int {
 	}
 	sleep, err := c.SleepOneDay(date)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return 0
 	}
 	return sleep.Duration
 }
@@ -182,7 +184,8 @@ func fromMove(db *dynamodb.DB, date string) int {
 
 	acts, err := repo.GetWithSinceAndUntil(ctx, constant.USER_ID, date, date)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return 0
 	}
 	total := 0
 	for _, act := range acts {

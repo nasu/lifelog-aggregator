@@ -27,7 +27,7 @@ func NewVisitRepository(db *dynamodb.DB) *VisitRepository {
 func (r *VisitRepository) Save(ctx context.Context, userID string, vis *PlaceVisit) error {
 	start := strconv.FormatUint(vis.Duration.StartTimestampMs, 10)
 	end := strconv.FormatUint(vis.Duration.EndTimestampMs, 10)
-	sortKey := userID + "-" + start
+	sortKey := userID + "#" + start
 
 	item := make(map[string]types.AttributeValue)
 	item["partition_key"] = &types.AttributeValueMemberS{Value: r.partitionKey}

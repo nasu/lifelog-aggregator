@@ -47,7 +47,7 @@ func (db DB) PutItem(ctx context.Context, table string, item map[string]types.At
 }
 
 func (db DB) GetItem(ctx context.Context, table, partitionKey, sortKey string) (map[string]types.AttributeValue, error) {
-	stmt := fmt.Sprintf("SELECT * FROM %s WHERE partition_key=? AND sort_key=?", table)
+	stmt := fmt.Sprintf("SELECT * FROM \"%s\" WHERE partition_key=? AND sort_key=?", table)
 	params := []types.AttributeValue{
 		&types.AttributeValueMemberS{Value: partitionKey},
 		&types.AttributeValueMemberS{Value: sortKey},
@@ -67,7 +67,8 @@ func (db DB) GetItem(ctx context.Context, table, partitionKey, sortKey string) (
 }
 
 func (db DB) GetItemsWithSortKeyRange(ctx context.Context, table, partitionKey, since, until string) ([]map[string]types.AttributeValue, error) {
-	stmt := fmt.Sprintf("SELECT * FROM %s WHERE partition_key=? AND sort_key BETWEEN ? AND ?", table)
+	//stmt := fmt.Sprintf("SELECT * FROM \"%s\" WHERE partition_key=? AND sort_key BETWEEN ? AND ?", table)
+	stmt := fmt.Sprintf("SELECT * FROM \"%s\" WHERE partition_key=? AND sort_key >= ? AND sort_key <= ?", table)
 	params := []types.AttributeValue{
 		&types.AttributeValueMemberS{Value: partitionKey},
 		&types.AttributeValueMemberS{Value: since},
