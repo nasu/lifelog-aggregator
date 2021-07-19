@@ -105,6 +105,7 @@ func main() {
 	e.GET(constant.PATH_AUTH_GOOGLE_CALLBACK, google.Cb)
 
 	e.GET("/diary", diary)
+	e.GET("/diary/:year/:month/:day", diary)
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
@@ -114,7 +115,20 @@ func diary(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	now := time.Now()
+	var now time.Time
+	y := c.Param("year")
+	m := c.Param("month")
+	d := c.Param("day")
+	if y != "" && m != "" && d != "" {
+		var err error
+		now, err = time.Parse("2006-01-02", fmt.Sprintf("%s-%s-%s", y, m, d))
+		if err != nil {
+			now = time.Now()
+		}
+	} else {
+		now = time.Now()
+	}
+
 	total := make(map[string]map[string]int)
 	for i := 0; i <= 3; i++ {
 		date := now.Add(time.Hour * 24 * -1 * time.Duration(i)).Format("2006-01-02")
