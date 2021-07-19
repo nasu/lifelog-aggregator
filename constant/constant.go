@@ -14,6 +14,8 @@ const (
 	SESSION_FLASH                = "flash"
 	SESSION_AUTH                 = "gid"
 	SESSION_AUTH_CONTENT_SESS_ID = "session_id"
+
+	USER_ID = "0000"
 )
 
 var (

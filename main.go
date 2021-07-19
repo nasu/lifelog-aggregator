@@ -16,6 +16,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/nasu/lifelog-aggregator/constant"
+	"github.com/nasu/lifelog-aggregator/domain/google/maps/locationhistory"
 	"github.com/nasu/lifelog-aggregator/domain/oura"
 	"github.com/nasu/lifelog-aggregator/domain/toggl"
 	"github.com/nasu/lifelog-aggregator/endpoint/auth/google"
@@ -162,9 +163,20 @@ func fromOura(date string) int {
 }
 
 func fromMove(db *dynamodb.DB, date string) int {
+	ctx := context.Background()
+	repo := locationhistory.NewMoveRepository(db)
 
+	acts, err := repo.GetWithSinceAndUntil(ctx, constant.USER_ID, date, date)
+	if err != nil {
+		log.Fatal(err)
+	}
+	total := 0
+	for _, act := range acts {
+		total += int((act.Duration.EndTimestampMs - act.Duration.StartTimestampMs) / 1000)
+	}
+	return total
 }
 
 func fromVisit(db *dynamodb.DB, date string) int {
-
+	return 1
 }

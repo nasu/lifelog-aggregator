@@ -8,11 +8,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/nasu/lifelog-aggregator/constant"
 	"github.com/nasu/lifelog-aggregator/domain/google/maps/locationhistory"
 	"github.com/nasu/lifelog-aggregator/infrastructure/dynamodb"
 )
-
-const userID = "me"
 
 var db *dynamodb.DB
 
@@ -60,7 +59,7 @@ func registerActivities(act []*locationhistory.ActivitySegment) {
 	ctx := context.Background()
 	repo := locationhistory.NewMoveRepository(db)
 	for _, a := range act {
-		if err := repo.Save(ctx, userID, a); err != nil {
+		if err := repo.Save(ctx, constant.USER_ID, a); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -76,7 +75,7 @@ func registerVisits(vis []*locationhistory.PlaceVisit) {
 		if v.Location.SemanticType == locationhistory.SemanticType_WORK {
 			continue
 		}
-		if err := repo.Save(ctx, userID, v); err != nil {
+		if err := repo.Save(ctx, constant.USER_ID, v); err != nil {
 			log.Fatal(err)
 		}
 	}
